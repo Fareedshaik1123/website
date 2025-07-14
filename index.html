@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Marco Polo Pool Service</title>
+  <style>
+    /* Reset & Global */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    html, body { height: 100%; overflow: hidden; }
+    body { background: url('water.png') center center no-repeat; background-size: cover; color: white; position: relative; }
+
+    /* Navbar */
+    nav { position: fixed; top: 0; left: 0; width: 100%; background: rgba(2, 17, 11, 0); display: flex; justify-content: center; gap: 100px; padding: 15px 0; z-index: 1000; }
+    nav a { color: white; text-decoration: none; font-weight: bold; font-size: 19px; transition: color 0.3s ease; }
+    nav a:hover { color: #00d4ff; }
+
+    /* Pages Container */
+    .page-container { display: flex; width: 400%; height: 100%; transition: transform 0.4s ease-in-out; }
+    .page { width: 25%; height: 100%; padding: 80px 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; position: relative; z-index: 1; }
+
+    /* Header */
+    header { text-align: center; padding-top: 90px; text-shadow: 1px 1px 5px black; animation: fadeIn 1s ease-in-out; }
+    header h1 { font-size: 88px; text-shadow: 0 0 10px rgb(22, 91, 91); line-height: 0.6; }
+    .marco-polo { font-family: "Georgia", serif; font-size: 1.5em; font-weight: bold; }
+    .pool-service { font-family: "Georgia", serif; font-size: 0.32em; }
+
+    /* Why Us Section */
+    .why-us h2 { text-align: center; font-size: 28px; text-shadow: 1px 1px 5px rgb(0, 0, 0); color: #00a2ff; margin: 70px 0 20px; animation: fadeIn 2s ease-out; }
+    .why-us p { text-align: center; max-width: 1000px; text-shadow: 1px 1px 5px rgb(0, 0, 0); margin: 0 auto; animation: fadeIn 2s ease-out; }
+
+    /* Services, Works, Contact */
+    .services, .works, .contact { background: transparent; border-radius: 15px; color: #000; width: 100%; }
+
+    /* Service Cards */
+    .card-container { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; overflow: visible; }
+    .card { position: relative; width: 300px; background: white; padding: 10px; border-radius: 10px; text-align: center; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .card:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    .card .img-placeholder { height: 170px; margin-bottom: 8px; border-radius: 8px; background-size: cover; background-position: center; }
+
+    /* Works Gallery */
+    .gallery { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px; overflow-y: auto; height: auto; }
+    .gallery-item { flex: 0 0 auto; width: 300px; height: 200px; background-size: cover; background-position: center; position: relative; border-radius: 10px; cursor: pointer; transition: transform 0.3s ease; }
+    .gallery-item:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    .gallery-item span { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.5); color: white; padding: 5px 10px; border-radius: 5px; }
+
+    /* Contact Form */
+    .contact form { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+    .contact input, .contact select, .contact textarea, .contact button { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+    .contact button { background: #00c4cc; color: white; cursor: pointer; transition: background 0.3s ease; }
+    .contact button:hover { background: #0077b6; }
+
+    /* Modal Styles */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 2000; }
+    .modal-content { position: relative; max-width: 90%; max-height: 90%; }
+    .modal-img { width: 100%; height: auto; object-fit: contain; border-radius: 8px; }
+    .modal-close { position: absolute; top: 10px; right: 20px; font-size: 30px; color: white; cursor: pointer; }
+    .modal-prev, .modal-next { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; font-size: 40px; color: white; padding: 10px; cursor: pointer; border-radius: 5px; }
+    .modal-prev { left: 10px; }
+    .modal-next { right: 10px; }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInLeft { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+
+    .book-btn {
+      display: block;
+      margin: 40px auto 0 auto;
+      padding: 18px 38px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #ffffffee;
+      background: #181414cc;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.25s;
+      box-shadow: 0 3px 14px rgba(0, 0, 0, 0.308);
+      letter-spacing: 1px;
+    }
+    .book-btn:hover {
+      background: #222;
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    #services, #works {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      padding-top: 80px;
+    }
+
+    #bg-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(14, 39, 51, 0.3);
+      pointer-events: none;
+      z-index: 0;
+    }
+    body > *:not(#bg-overlay):not(#modal) {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+      html, body { overflow: hidden; }
+      
+      /* Hide desktop nav */
+      nav { display: none; }
+      
+      /* Mobile page container - horizontal sliding */
+      .page-container {
+        display: flex;
+        width: 400%;
+        height: 100vh;
+        transition: transform 0.3s ease-out;
+      }
+      
+      .page {
+        width: 25%;
+        height: 100vh;
+        padding: 60px 20px 100px 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+      }
+
+      /* Mobile Home Page */
+      header {
+        padding-top: 40px;
+        margin-bottom: 30px;
+      }
+      
+      header h1 {
+        font-size: 36px;
+        line-height: 1.1;
+        margin-bottom: 20px;
+      }
+      
+      .marco-polo {
+        font-size: 1em;
+        display: block;
+        margin-bottom: 5px;
+      }
+      
+      .pool-service {
+        font-size: 0.4em;
+        display: block;
+      }
+      
+      .why-us {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .why-us h2 {
+        font-size: 20px;
+        margin: 20px 0 15px;
+        color: #00d4ff;
+      }
+      
+      .why-us p {
+        
+        font-size: 14px;
+        line-height: 1.5;
+        padding: 0 10px;
+      }
+      
+      .book-btn {
+        padding: 15px 30px;
+        font-size: 16px;
+        margin-top: 20px;
+      }
+
+      /* Mobile Services */
+      #services {
+        padding-top: 60px;
+      }
+      
+      #services h2 {
+        color: white;
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .card-container {
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        max-width: 400px;
+      }
+      
+      .card {
+        width: 100%;
+        background: white;
+        border-radius: 15px;
+        padding: 0;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      }
+      
+      .card .img-placeholder {
+        height: 200px;
+        margin-bottom: 0;
+        border-radius: 15px 15px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      
+      .card h3 {
+        color: #333;
+        font-size: 18px;
+        margin: 15px 15px 10px 15px;
+      }
+      
+      .card p {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.4;
+        margin: 0 15px 15px 15px;
+      }
+
+      /* Mobile Works */
+      #works {
+        padding-top: 60px;
+      }
+      
+      #works h2 {
+        color: white;
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .gallery {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        width: 100%;
+        max-width: 400px;
+        padding: 0;
+      }
+      
+      .gallery-item {
+        width: 100%;
+        height: 120px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        background-size: cover !important;
+        background-position: center !important;
+      }
+
+      /* Mobile Contact */
+      #contact {
+        padding-top: 60px;
+      }
+      
+      #contact h2 {
+        color: white;
+        font-size: 28px;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .contact form {
+        width: 100%;
+        max-width: 400px;
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      }
+      
+      .contact input,
+      .contact select,
+      .contact textarea {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 16px;
+        background: #f8f9fa;
+      }
+      
+      .contact button {
+        width: 100%;
+        padding: 15px;
+        background: #00d4ff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    }
+
+    /* Mobile Navigation */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      padding: 10px 0 20px 0;
+    }
+
+    .mobile-nav-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .mobile-nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 12px;
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+    }
+
+    .mobile-nav-btn.active {
+      color: #00d4ff;
+      background: rgba(0, 212, 255, 0.1);
+    }
+
+    .mobile-nav-icon {
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    /* Page Indicator */
+    .page-indicator {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 8px 16px;
+    }
+
+    .page-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .page-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .page-dot.active {
+      background: #00d4ff;
+      transform: scale(1.2);
+    }
+
+    /* make the modal scrollable if needed */
+    .modal {
+      overflow: auto;
+    }
+
+    /* constrain the modal “window” */
+    .modal-content {
+      margin: auto;              /* center it */
+      max-width: 90vw !important;  /* never exceed 90% of viewport width */
+      max-height: 90vh !important; /* never exceed 90% of viewport height */
+      overflow: hidden;          /* clip any overflow */
+    }
+
+    /* let the <img> shrink to fit that window */
+    .modal-img {
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+
+    @media (max-width: 768px) {
+      .mobile-nav { display: block; }
+      .page-indicator { display: block; }
+    }
+
+    /* Service card colors for mobile */
+    @media (max-width: 768px) {
+      .card:nth-child(1) .img-placeholder { background: linear-gradient(135deg, #4F46E5, #7C3AED); }
+      .card:nth-child(2) .img-placeholder { background: linear-gradient(135deg, #10B981, #059669); }
+      .card:nth-child(3) .img-placeholder { background: linear-gradient(135deg, #8B5CF6, #A855F7); }
+      .card:nth-child(4) .img-placeholder { background: linear-gradient(135deg, #F59E0B, #D97706); }
+      .card:nth-child(5) .img-placeholder { background: linear-gradient(135deg, #EF4444, #DC2626); }
+      .card:nth-child(6) .img-placeholder { background: linear-gradient(135deg, #06B6D4, #0891B2); }
+      .card:nth-child(7) .img-placeholder { background: linear-gradient(135deg, #6366F1, #4F46E5); }
+      .card:nth-child(8) .img-placeholder { background: linear-gradient(135deg, #EC4899, #DB2777); }
+      .card:nth-child(9) .img-placeholder { background: linear-gradient(135deg, #F59E0B, #D97706); }
+      .card:nth-child(10) .img-placeholder { background: linear-gradient(135deg, #06B6D4, #0891B2); }
+      .card:nth-child(11) .img-placeholder { background: linear-gradient(135deg, #10B981, #059669); }
+      .card:nth-child(12) .img-placeholder { background: linear-gradient(135deg, #8B5CF6, #A855F7); }
+      .card:nth-child(13) .img-placeholder { background: linear-gradient(135deg, #F59E0B, #D97706); }
+    
+    .card .img-placeholder {
+  /* switch from cover to contain so the whole image is shown */
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* —— Remove the four “logos” (icons) in the mobile nav —— */
+.mobile-nav-icon {
+  display: none !important;
+}
+
+    
+    }
+
+
+  </style>
+</head>
+<body>
+  <!-- Desktop Navbar -->
+  <nav>
+    <a href="#home" data-page="0">Home</a>
+    <a href="#services" data-page="1">Services</a>
+    <a href="#works" data-page="2">Previous Works</a>
+    <a href="#contact" data-page="3">Contact</a>
+  </nav>
+
+  <!-- Mobile Navigation -->
+  <div class="mobile-nav">
+    <div class="mobile-nav-container">
+      <a href="#home" class="mobile-nav-btn active" data-page="0">
+        <div class="mobile-nav-icon">🏠</div>
+        <div>Home</div>
+      </a>
+      <a href="#services" class="mobile-nav-btn" data-page="1">
+        <div class="mobile-nav-icon">⚙️</div>
+        <div>Services</div>
+      </a>
+      <a href="#works" class="mobile-nav-btn" data-page="2">
+        <div class="mobile-nav-icon">📸</div>
+        <div>Works</div>
+      </a>
+      <a href="#contact" class="mobile-nav-btn" data-page="3">
+        <div class="mobile-nav-icon">📞</div>
+        <div>Contact</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Page Indicator -->
+  <div class="page-indicator">
+    <div class="page-dots">
+      <div class="page-dot active" data-page="0"></div>
+      <div class="page-dot" data-page="1"></div>
+      <div class="page-dot" data-page="2"></div>
+      <div class="page-dot" data-page="3"></div>
+    </div>
+  </div>
+
+  <!-- Page Container -->
+  <div class="page-container" id="pageContainer">
+    <!-- Home Page -->
+    <div class="page" id="home">
+      <header>
+        <h1>
+          <span class="marco-polo">MARCO POLO</span><br>
+          <span class="pool-service">POOL SERVICE & NEW CONSTRUCTION</span>
+        </h1>
+      </header>
+      <section class="why-us">
+        <h2>Crystal Clear Service | Pool Perfection Guaranteed</h2>
+        <p>With 20 years of experience, our dedicated team ensures your pool remains a pristine oasis. We use eco-friendly products and cutting-edge techniques to deliver exceptional results, unmatched reliability and peace of mind for every swim.</p>
+      </section>
+      <button id="book-appointment-btn" class="book-btn">Book Your Appointment</button>
+    </div>
+
+    <!-- Services Page -->
+    <div class="page" id="services">
+      <section class="services">
+        <div class="card-container">
+          <div class="card" data-images="pics/full service.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/full service.jpg');"></div>
+            <h3>Full Service</h3>
+            <p>Comprehensive pool maintenance including cleaning, chemical balancing, and equipment checks.</p>
+          </div>
+          <div class="card" data-images="pics/special clean.jpg, pics/special clean 1.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/special clean.jpg');"></div>
+            <h3>Special Clean</h3>
+            <p>Deep cleaning for pools that need extra care, removing tough stains and debris.</p>
+          </div>
+          <div class="card" data-images="pics/new const.jpg, pics/new const 1.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/new const.jpg');"></div>
+            <h3>New Construction</h3>
+            <p>Building your vision with precision in new construction, ensuring durability and timeless design.</p>
+          </div>
+          <div class="card" data-images="pics/renovation 0.jpg, pics/renovation.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/renovation 0.jpg');"></div>
+            <h3>Renovation</h3>
+            <p>Transforming spaces through expert renovation, restoring functionality, and enhancing aesthetic appeal.</p>
+          </div>
+          <div class="card" data-images="pics/repairs.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/repairs.jpg');"></div>
+            <h3>Repairs</h3>
+            <p>Fixing pumps, filters, heaters, and other pool equipment to ensure smooth operation.</p>
+          </div>
+          <div class="card" data-images="pics/acid wash 1.jpg, pics/acid wash 2.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/acid wash 1.jpg');"></div>
+            <h3>Acid Wash</h3>
+            <p>Removing stubborn stains and algae from pool surfaces with a safe acid wash.</p>
+          </div>
+          <div class="card" data-images="pics/plastering 1.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/plastering 1.jpg');"></div>
+            <h3>Plastering</h3>
+            <p>Applying or repairing plaster to keep your pool's interior smooth and durable.</p>
+          </div>
+          <div class="card" data-images="pics/retile 1.jpg, pics/retile 2.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/retile 1.jpg');"></div>
+            <h3>Retile</h3>
+            <p>Replacing or updating pool tiles to refresh the look and functionality of your pool.</p>
+          </div>
+          <div class="card" data-images="pics/coping.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/coping.jpg');"></div>
+            <h3>Coping</h3>
+            <p>Installing or repairing the pool edge coping for a polished and safe finish.</p>
+          </div>
+          <div class="card" data-images="pics/decking.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/decking.jpg');"></div>
+            <h3>Decking</h3>
+            <p>Designing and installing pool decking to enhance your outdoor space.</p>
+          </div>
+          <div class="card" data-images="pics/electrical.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/electrical.jpg');"></div>
+            <h3>Electrical</h3>
+            <p>Handling electrical repairs and installations for pool lighting and equipment.</p>
+          </div>
+          <div class="card" data-images="pics/filter clean.jpg, pics/filter clean 1.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/filter clean.jpg');"></div>
+            <h3>Filter Clean</h3>
+            <p>Thorough cleaning of pool filters to maintain optimal water circulation and clarity.</p>
+          </div>
+          <div class="card" data-images="pics/pergola 1.jpg, pics/pergola 2.jpg, pics/pergola 3.jpg, pics/pergola 4.jpg, pics/pergola 5.jpg">
+            <div class="img-placeholder" style="background-image: url('pics/pergola 4.jpg');"></div>
+            <h3>Patio</h3>
+            <p>Creating inviting patios with expert design and installation, enhancing outdoor living and comfort.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Works Page -->
+    <div class="page" id="works">
+      <section class="works">
+        <div class="gallery">
+          <div class="gallery-item" style="background: lightgray url('pics/1.jpg') center/cover no-repeat;" data-image="pics/1.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/2.jpg') center/cover no-repeat;" data-image="pics/2.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/3.jpg') center/cover no-repeat;" data-image="pics/3.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/4.jpg') center/cover no-repeat;" data-image="pics/4.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/5.jpg') center/cover no-repeat;" data-image="pics/5.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/6.jpg') center/cover no-repeat;" data-image="pics/6.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/7.jpg') center/cover no-repeat;" data-image="pics/7.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/8.jpg') center/cover no-repeat;" data-image="pics/8.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/9.jpg') center/cover no-repeat;" data-image="pics/9.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/10.jpg') center/cover no-repeat;" data-image="pics/10.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/11.jpg') center/cover no-repeat;" data-image="pics/11.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/12.jpg') center/cover no-repeat;" data-image="pics/12.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/13.jpg') center/cover no-repeat;" data-image="pics/13.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/14.jpg') center/cover no-repeat;" data-image="pics/14.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/15.jpg') center/cover no-repeat;" data-image="pics/15.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/16.jpg') center/cover no-repeat;" data-image="pics/16.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/17.jpg') center/cover no-repeat;" data-image="pics/17.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/18.jpg') center/cover no-repeat;" data-image="pics/18.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/19.jpg') center/cover no-repeat;" data-image="pics/19.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/20.jpg') center/cover no-repeat;" data-image="pics/20.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/21.jpg') center/cover no-repeat;" data-image="pics/21.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/22.jpg') center/cover no-repeat;" data-image="pics/22.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/23.jpg') center/cover no-repeat;" data-image="pics/23.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/24.jpg') center/cover no-repeat;" data-image="pics/24.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/25.jpg') center/cover no-repeat;" data-image="pics/25.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/26.jpg') center/cover no-repeat;" data-image="pics/26.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/27.jpg') center/cover no-repeat;" data-image="pics/27.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/28.jpg') center/cover no-repeat;" data-image="pics/28.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/29.jpg') center/cover no-repeat;" data-image="pics/29.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/acid wash 1.jpg') center/cover no-repeat;" data-image="pics/acid wash 1.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/acid wash 2.jpg') center/cover no-repeat;" data-image="pics/acid wash 2.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/coping.jpg') center/cover no-repeat;" data-image="pics/coping.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/decking.jpg') center/cover no-repeat;" data-image="pics/decking.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/Filter clean 1.jpg') center/cover no-repeat;" data-image="pics/Filter clean 1.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/filter clean.jpg') center/cover no-repeat;" data-image="pics/filter clean.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/full service.jpg') center/cover no-repeat;" data-image="pics/full service.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/new const 1.jpg') center/cover no-repeat;" data-image="pics/new const 1.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/new const.jpg') center/cover no-repeat;" data-image="pics/new const.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/pergola 1.jpg') center/cover no-repeat;" data-image="pics/pergola 1.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/pergola 2.jpg') center/cover no-repeat;" data-image="pics/pergola 2.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/pergola 3.jpg') center/cover no-repeat;" data-image="pics/pergola 3.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/pergola 4.jpg') center/cover no-repeat;" data-image="pics/pergola 4.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/pergola 5.jpg') center/cover no-repeat;" data-image="pics/pergola 5.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/pergola 6.jpg') center/cover no-repeat;" data-image="pics/pergola 6.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/plastering 1.jpg') center/cover no-repeat;" data-image="pics/plastering 1.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/plastering 2.jpg') center/cover no-repeat;" data-image="pics/plastering 2.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/renovation 0.jpg') center/cover no-repeat;" data-image="pics/renovation 0.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/renovation.jpg') center/cover no-repeat;" data-image="pics/renovation.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/repairs.jpg') center/cover no-repeat;" data-image="pics/repairs.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/retile 1.jpg') center/cover no-repeat;" data-image="pics/retile 1.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/retile 2.jpg') center/cover no-repeat;" data-image="pics/retile 2.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/special clean 1.jpg') center/cover no-repeat;" data-image="pics/special clean 1.jpg"></div>
+          <div class="gallery-item" style="background: lightgray url('pics/special clean.jpg') center/cover no-repeat;" data-image="pics/special clean.jpg"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Contact Page -->
+    <div class="page" id="contact">
+      <section class="contact">
+        <form id="contact-form">
+          <input type="text" name="from_name" placeholder="Name*" required>
+          <input type="email" name="reply_to" placeholder="Email*" required>
+          <input type="tel" name="phone" placeholder="Phone Number*" required>
+          <select name="service" id="service" required>
+            <option value="">Select a service*</option>
+            <option value="Full Service">Full Service</option>
+            <option value="New Construction">New Construction</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Repairs">Repairs</option>
+            <option value="Renovation">Renovation</option>
+            <option value="Quotation">Quotation</option>
+            <option value="Other">Other (please specify)</option>
+          </select>
+          <input type="date" name="booking_date*" required>
+          <textarea name="message" placeholder="Message" rows="4" optional></textarea>
+          <button type="submit">Schedule Now</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <!-- Modal for images -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close">&times;</span>
+      <img src="" alt="Enlarged Image" class="modal-img" />
+      <button class="modal-prev">&#10094;</button>
+      <button class="modal-next">&#10095;</button>
+    </div>
+  </div>
+
+  <script>
+    let currentPage = 0;
+    let isMobile = window.innerWidth <= 768;
+    let touchStartX = null;
+    let touchEndX = null;
+    const minSwipeDistance = 50;
+
+    // Check if mobile
+    function checkMobile() {
+      isMobile = window.innerWidth <= 768;
+    }
+
+    window.addEventListener('resize', checkMobile);
+
+    // Navigation function
+    function navigateToPage(pageIndex) {
+      currentPage = pageIndex;
+      const pageContainer = document.getElementById('pageContainer');
+      pageContainer.style.transform = `translateX(-${pageIndex * 25}%)`;
+      updateNavigation();
+    }
+
+    // Update navigation active states
+    function updateNavigation() {
+      // Desktop navigation
+      document.querySelectorAll('nav a').forEach(link => {
+        const page = parseInt(link.dataset.page);
+        if (page === currentPage) {
+          link.style.color = '#00d4ff';
+        } else {
+          link.style.color = 'white';
+        }
+      });
+
+      // Mobile navigation
+      document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+        const page = parseInt(btn.dataset.page);
+        if (page === currentPage) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Page indicator
+      document.querySelectorAll('.page-dot').forEach(dot => {
+        const page = parseInt(dot.dataset.page);
+        if (page === currentPage) {
+          dot.classList.add('active');
+        } else {
+          dot.classList.remove('active');
+        }
+      });
+    }
+
+    // Touch handling for swipe navigation
+    function handleTouchStart(e) {
+      touchStartX = e.touches[0].clientX;
+      touchEndX = null;
+    }
+
+    function handleTouchMove(e) {
+      touchEndX = e.touches[0].clientX;
+    }
+
+    function handleTouchEnd() {
+      if (!touchStartX || !touchEndX) return;
+
+      const distance = touchStartX - touchEndX;
+      const isLeftSwipe = distance > minSwipeDistance;
+      const isRightSwipe = distance < -minSwipeDistance;
+
+      if (isLeftSwipe && currentPage < 3) {
+        navigateToPage(currentPage + 1);
+      }
+      if (isRightSwipe && currentPage > 0) {
+        navigateToPage(currentPage - 1);
+      }
+
+      touchStartX = null;
+      touchEndX = null;
+    }
+
+    // Add touch event listeners
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchmove', handleTouchMove, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    // Navigation clicks
+    document.querySelectorAll('nav a, .mobile-nav-btn').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const pageIndex = parseInt(link.dataset.page);
+        navigateToPage(pageIndex);
+      });
+    });
+
+    // Modal functionality
+   const modal       = document.getElementById('modal');
+const modalImg    = modal.querySelector('.modal-img');
+const closeBtn    = modal.querySelector('.modal-close');
+const prevBtn     = modal.querySelector('.modal-prev');
+const nextBtn     = modal.querySelector('.modal-next');
+
+let images           = [];
+let currentImageIndex = 0;
+
+// when a service card is clicked…
+document.querySelectorAll('#services .card').forEach(card => {
+  card.addEventListener('click', () => {
+    // load its images (comma-separated in data-images)
+    images = card.dataset.images.split(',').map(s => s.trim());
+    currentImageIndex = 0;
+    modalImg.src = images[0];
+    modal.style.display = 'flex';
+  });
+});
+
+
+const galleryItems = document.querySelectorAll('#works .gallery-item');
+
+galleryItems.forEach(item => {
+  item.addEventListener('click', () => {
+    // Build an array of all gallery-image URLs
+    images = Array.from(galleryItems).map(el => el.dataset.image);
+    // Start on the one that was clicked
+    currentImageIndex = images.indexOf(item.dataset.image);
+    modalImg.src = images[currentImageIndex];
+    modal.style.display = 'flex';
+  });
+});
+
+
+
+
+
+
+// close modal
+closeBtn.addEventListener('click', () => {
+  modal.style.display = 'none';
+});
+
+// prev/next logic
+prevBtn.addEventListener('click', () => {
+  currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+  modalImg.src = images[currentImageIndex];
+});
+nextBtn.addEventListener('click', () => {
+  currentImageIndex = (currentImageIndex + 1) % images.length;
+  modalImg.src = images[currentImageIndex];
+});
+
+// clicking outside the image closes modal
+modal.addEventListener('click', e => {
+  if (e.target === modal) modal.style.display = 'none';
+});
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        modal.style.display = 'none';
+      } else if (e.key === 'ArrowLeft' && modal.style.display === 'flex') {
+        prevBtn.click();
+      } else if (e.key === 'ArrowRight' && modal.style.display === 'flex') {
+        nextBtn.click();
+      } else if (e.key === 'ArrowLeft' && modal.style.display !== 'flex' && currentPage > 0) {
+        navigateToPage(currentPage - 1);
+      } else if (e.key === 'ArrowRight' && modal.style.display !== 'flex' && currentPage < 3) {
+        navigateToPage(currentPage + 1);
+      }
+    });
+
+    // Book appointment button
+    document.getElementById('book-appointment-btn').addEventListener('click', function() {
+      navigateToPage(3);
+    });
+
+    // Initialize navigation
+    updateNavigation();
+  </script>
+
+  <!-- EmailJS SDK & handler -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    // Initialize with your public key
+    emailjs.init('vpy7PAe93Ges2PaDW');
+
+    document
+      .getElementById('contact-form')
+      .addEventListener('submit', function(event) {
+        event.preventDefault();
+        emailjs.sendForm('service_a6k26z5', 'template_fb71wga', this)
+          .then(() => {
+            alert('Thank you! Your message has been sent.');
+            this.reset();
+          }, (error) => {
+            console.error('FAILED...', error);
+            alert('Oops—there was a problem. Please try again.');
+          });
+      });
+  </script>
+
+  <div id="bg-overlay"></div>
+</body>
+</html>
